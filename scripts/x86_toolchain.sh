@@ -5,7 +5,6 @@
 # ISS Program, SADT, SAIT
 # August 2022
 
-
 # Annotations by:
 # Sam Cordara
 # ITSC-204, ISS, SAIT
@@ -34,7 +33,6 @@ if [ $# -lt 1 ]; then
     # exits with status code 1, indicating an error
 fi
 
-
 POSITIONAL_ARGS=()
 GDB=False
 OUTPUT_FILE=""
@@ -62,7 +60,7 @@ while [[ $# -gt 0 ]]; do
             shift # past argument
             shift # past value
             ;;
-        -v|--verbose)   # if the value is '-v' or '--verbose' it changes the 'VARBOSE' variable value to true
+        -v|--verbose)   # if the value is '-v' or '--verbose' it changes the 'VERBOSE' variable value to true
             VERBOSE=True
             shift # past argument
             ;;
@@ -95,13 +93,7 @@ while [[ $# -gt 0 ]]; do
     esac    # end of the case statement
 done    # end of the loop
 
-
-
-
 set -- "${POSITIONAL_ARGS[@]}"  # sets the positional parameters to the values stored in the variable 'POSITIONAL_ARGS'
-
-
-
 
 if [[ ! -f $1 ]]; then
                         # checks if the first positional argument is a file or not
@@ -117,17 +109,10 @@ fi
 
 if [ "$OUTPUT_FILE" == "" ]; then   # checks if OUTPUT_FILE is an empty string
 
-
-
-
     OUTPUT_FILE=${1%.*}   # if so, it sets OUTPUT_FILE to the input file name with the extension removed
 fi
 
-
 if [ "$VERBOSE" == "True" ]; then   # checks if VERBOSE is set to 'true'
-
-
-
 
     echo "Arguments being set:"
     echo "    GDB = ${GDB}"
@@ -141,17 +126,11 @@ if [ "$VERBOSE" == "True" ]; then   # checks if VERBOSE is set to 'true'
     echo ""
     # if the verbose option is chosen, it prints values of the various options and what they are set to
 
-
-
-
     echo "NASM started..."
 fi
 
 
 if [ "$BITS" == "True" ]; then  # checks if BITS is set to true
-
-
-
 
     nasm -f elf64 $1 -o $OUTPUT_FILE.o && echo ""
     # if the bits option is chosen, it assembles the input file using the nasm assembler for 64-bit systems
@@ -179,9 +158,6 @@ if [ "$BITS" == "True" ]; then  # this also checks if BITS is set to 'true'
     ld -m elf_x86_64 $OUTPUT_FILE.o -o $OUTPUT_FILE && echo ""
     # if so, it links the object file using the ld linker for 64-bit systems
 
-
-
-
 elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'false'
 
 
@@ -208,12 +184,8 @@ if [ "$QEMU" == "True" ]; then  # this checks if QEMU is set to 'true'
 
     if [ "$BITS" == "True" ]; then  # also checks if BITS is set to 'true'
 
-
         qemu-x86_64 $OUTPUT_FILE && echo ""
         # if so, it runs the executable using the QEMU emulator for 64-bit systems
-
-
-
 
     elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'false'
 
@@ -222,6 +194,21 @@ if [ "$QEMU" == "True" ]; then  # this checks if QEMU is set to 'true'
         # if so, runs the executable using the QEMU emulator for 32-bit systems
     fi
 
-
     exit 0  # this exits the script with status code 0, indicating successful execution
-fi
+fi  
+
+if [ "$GDB" == "True" ]; then   # check if the variable GDB is set to 'true'
+
+	gdb_params=()   # initializes an array called gdb_params
+    gdb_params+=(-ex "b ${BREAK}")  # adds a GDB command to set a breakpoint at the location specified by BREAK
+
+	if [ "$RUN" == "True" ]; then   # check if the variable $RUN is set to "True"
+
+		gdb_params+=(-ex "r")   # if RUN is true, add a GDB command to run the program
+
+	fi
+
+	# runs GDB with the prepared parameters and $OUTPUT_FILE as an argument
+	gdb "${gdb_params[@]}" $OUTPUT_FILE
+
+fi 
