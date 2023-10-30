@@ -45,17 +45,17 @@ RUN=False
 
 
 while [[ $# -gt 0 ]]; do
-# this loop goes through all the command line arguements as long as the number of arguments ($#) is greater than 0
+# this loop goes through each command line argument (using the shift command) until the number of arguments ($#) is not greater than 0
 
 
     case $1 in
-    # this is a case statement that checks the value of the first argument
+    # this is a case statement that checks the value of the argument in the current loop iteration
    
         -g|--gdb)   # if the value is'-g' or '--gdb' it changes the GDB variable value to true
             GDB=True
             shift # past argument
-            ;;
-        -o|--output)    # if the value is '-o' or '--output' it changes value of 'OUTPUT_FILE' to '$2' or argument 3
+            ;;    # end of case clause
+        -o|--output)    # if the value is '-o' or '--output' it changes value of 'OUTPUT_FILE' to '$2', where the new output file is expected to be provided
             OUTPUT_FILE="$2"
             shift # past argument
             shift # past value
@@ -87,8 +87,8 @@ while [[ $# -gt 0 ]]; do
             exit 1  # exits the process with status code 1
             ;;
         *)
-            POSITIONAL_ARGS+=("$1") # save positional arguments
-            shift # past argument
+            POSITIONAL_ARGS+=("$1") # save positional argument by appending it to an array
+            shift # discard positional argument
             ;;
     esac    # end of the case statement
 done    # end of the loop
@@ -112,7 +112,7 @@ if [ "$OUTPUT_FILE" == "" ]; then   # checks if OUTPUT_FILE is an empty string
     OUTPUT_FILE=${1%.*}   # if so, it sets OUTPUT_FILE to the input file name with the extension removed
 fi
 
-if [ "$VERBOSE" == "True" ]; then   # checks if VERBOSE is set to 'true'
+if [ "$VERBOSE" == "True" ]; then   # checks if VERBOSE is set to 'True'
 
     echo "Arguments being set:"
     echo "    GDB = ${GDB}"
@@ -144,7 +144,7 @@ elif [ "$BITS" == "False" ]; then   # checks if BITS is still set to false
 fi
 
 
-if [ "$VERBOSE" == "True" ]; then   # also checks if VERBOSE is set to 'true'
+if [ "$VERBOSE" == "True" ]; then   # also checks if VERBOSE is set to 'True'
 
 
     echo "NASM finished"
@@ -152,13 +152,13 @@ if [ "$VERBOSE" == "True" ]; then   # also checks if VERBOSE is set to 'true'
 fi  # if so, it prints the following echo statements
 
 
-if [ "$BITS" == "True" ]; then  # this also checks if BITS is set to 'true'
+if [ "$BITS" == "True" ]; then  # this also checks if BITS is set to 'True'
 
 
     ld -m elf_x86_64 $OUTPUT_FILE.o -o $OUTPUT_FILE && echo ""
     # if so, it links the object file using the ld linker for 64-bit systems
 
-elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'false'
+elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'False'
 
 
     ld -m elf_i386 $OUTPUT_FILE.o -o $OUTPUT_FILE && echo ""
@@ -166,7 +166,7 @@ elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'false'
 fi
 
 
-if [ "$VERBOSE" == "True" ]; then   # also checks if VERBOSE is set to 'true'
+if [ "$VERBOSE" == "True" ]; then   # also checks if VERBOSE is set to 'True'
 
 
     echo "Linking finished"
@@ -174,7 +174,7 @@ fi
 # if so, it prints information about the script's state when linking is complete
 
 
-if [ "$QEMU" == "True" ]; then  # this checks if QEMU is set to 'true'
+if [ "$QEMU" == "True" ]; then  # this checks if QEMU is set to 'True'
 
 
     echo "Starting QEMU ..."
@@ -182,12 +182,12 @@ if [ "$QEMU" == "True" ]; then  # this checks if QEMU is set to 'true'
 # if so, it prints these echo statements.
 
 
-    if [ "$BITS" == "True" ]; then  # also checks if BITS is set to 'true'
+    if [ "$BITS" == "True" ]; then  # also checks if BITS is set to 'True'
 
         qemu-x86_64 $OUTPUT_FILE && echo ""
         # if so, it runs the executable using the QEMU emulator for 64-bit systems
 
-    elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'false'
+    elif [ "$BITS" == "False" ]; then   # checks if BITS is set to 'False'
 
 
         qemu-i386 $OUTPUT_FILE && echo ""
@@ -197,7 +197,7 @@ if [ "$QEMU" == "True" ]; then  # this checks if QEMU is set to 'true'
     exit 0  # this exits the script with status code 0, indicating successful execution
 fi  
 
-if [ "$GDB" == "True" ]; then   # check if the variable GDB is set to 'true'
+if [ "$GDB" == "True" ]; then   # check if the variable GDB is set to 'True'
 
 	gdb_params=()   # initializes an array called gdb_params
     gdb_params+=(-ex "b ${BREAK}")  # adds a GDB command to set a breakpoint at the location specified by BREAK
